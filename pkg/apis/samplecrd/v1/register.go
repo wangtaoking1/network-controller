@@ -5,22 +5,14 @@ import (
     "k8s.io/apimachinery/pkg/runtime"
     "k8s.io/apimachinery/pkg/runtime/schema"
 
-    samplecrd "github.com/wangtaoking1/network-controller/pkg/apis/samplecrd"
+    "github.com/wangtaoking1/network-controller/pkg/apis/samplecrd"
 )
 
 // SchemeGroupVersion is group version used to register these objects
-var SchemeGroupVersion = schema.GroupVersion{Group: samplecrd.GroupName, Version: "v1"}
+var SchemeGroupVersion = schema.GroupVersion{Group: samplecrd.GroupName, Version: samplecrd.Version}
 
-// Kind takes an unqualified kind and returns back a Group qualified GroupKind
-func Kind(kind string) schema.GroupKind {
-    return SchemeGroupVersion.WithKind(kind).GroupKind()
-}
-
-// Resource takes an unqualified resource and returns a Group qualified GroupResource
-func Resource(resource string) schema.GroupResource {
-    return SchemeGroupVersion.WithResource(resource).GroupResource()
-}
-
+// create a SchemeBuilder which uses functions to add types to
+// the scheme
 var (
     // SchemeBuilder initializes a scheme builder
     SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
@@ -28,12 +20,25 @@ var (
     AddToScheme = SchemeBuilder.AddToScheme
 )
 
-// Adds the list of known types to Scheme.
+// Resource takes an unqualified resource and returns a Group qualified GroupResource
+func Resource(resource string) schema.GroupResource {
+    return SchemeGroupVersion.WithResource(resource).GroupResource()
+}
+
+// Kind takes an unqualified kind and returns back a Group qualified GroupKind
+func Kind(kind string) schema.GroupKind {
+    return SchemeGroupVersion.WithKind(kind).GroupKind()
+}
+
+// addKnownTypes adds our types to the API scheme by registering
+// Network and NetworkList
 func addKnownTypes(scheme *runtime.Scheme) error {
     scheme.AddKnownTypes(SchemeGroupVersion,
         &Network{},
         &NetworkList{},
     )
+
+    // register the type in the scheme
     metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
     return nil
 }
